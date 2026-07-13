@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Environments
+.venv/
+
+# Local data and generated experiment outputs
+data/
+models/
+samples/
+outputs/*
+!outputs/.gitkeep
+!outputs/models/
+!outputs/models/.gitkeep
+!outputs/samples/
+!outputs/samples/.gitkeep
+!outputs/logs/
+!outputs/logs/.gitkeep
+
+# Logs and tracker state
+*.log
+wandb/
+
