@@ -19,10 +19,9 @@ uv run difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/train.p
 uv run difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/sample.py
 ```
 
-The old commands still work through compatibility wrappers:
+The old commands still work through compatibility wrappers under `legacy/`:
 
 ```bash
-python diffusion_main.py -c config/AMZN/Diffusion/wavenet_motion_control/train.py
+python legacy/diffusion_main.py -c config/AMZN/Diffusion/wavenet_motion_control/train.py
 bash scripts/AMZN/diff_wavenet_motion_control.sh
 ```
-

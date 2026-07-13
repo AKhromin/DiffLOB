@@ -53,7 +53,7 @@ You can then run commands through the managed environment:
 uv run difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/train.py
 ```
 
-The historical root-level commands, such as `python diffusion_main.py -c ...`, are still available as compatibility wrappers.
+Historical commands are available under `legacy/`, for example `python legacy/diffusion_main.py -c ...`.
 
 ---
 

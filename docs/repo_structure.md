@@ -13,12 +13,12 @@ src/difflob/
   utils/        shared tensor, config, and dataloader helpers
 ```
 
-The historical root-level files, such as `diffusion_main.py` and `vae_main.py`, are compatibility wrappers. New code should import from `difflob.*`.
+Historical files, such as `diffusion_main.py` and `vae_main.py`, are kept under `legacy/` as compatibility wrappers. New code should import from `difflob.*`.
 
 Other top-level directories:
 
 - `config/`: experiment configs organized by ticker, model family, and sampling condition.
 - `scripts/`: shell launchers for existing experiment batches.
+- `legacy/`: compatibility wrappers for older commands and imports.
 - `docs/assets/`: README and documentation figures.
 - `outputs/`: ignored local output area for checkpoints, samples, and logs.
-
