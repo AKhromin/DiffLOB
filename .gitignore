@@ -4,24 +4,27 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.DS_Store
 
 # Environments
 .venv/
 
 # Local data and generated experiment outputs
-data/
-models/
-samples/
+/data/
+/models/
+/samples/
 outputs/*
 !outputs/.gitkeep
 !outputs/models/
+outputs/models/*
 !outputs/models/.gitkeep
 !outputs/samples/
+outputs/samples/*
 !outputs/samples/.gitkeep
 !outputs/logs/
+outputs/logs/*
 !outputs/logs/.gitkeep
 
 # Logs and tracker state
 *.log
 wandb/
-

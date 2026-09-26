@@ -3,9 +3,9 @@ class Configuration:
     def __init__(self):
 
         self.is_training = True
-        self.folder_path = "/scratch/prj/genai_techniques_finance/lobsterdata/202302/AMZN/output-2023-02/0/0/43/"
+        self.folder_path = "data/LOBSTER/AMZN"
         self.split_rate = (.85, .05, .10)
-        
+
         self.past_window = 33
         self.predict_window = 32
         self.store_length = 32
@@ -49,8 +49,3 @@ class Configuration:
         self.sampling_predictor = "ancestral_sampling" # ['euler_maruyama', 'reverse_diffusion', 'ancestral_sampling', 'none'] 
         self.sampling_corrector = "none" # ['langevin', 'ald', 'none']
         self.samples_saving_path = 'samples/AMZN/wavenet_motion_control/vpsde_FTF_AR.npy' # model_architecture_sde_stockname.pth
-        
-        
-        
-        
-        

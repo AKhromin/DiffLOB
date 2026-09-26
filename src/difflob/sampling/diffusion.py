@@ -3,6 +3,7 @@ import numpy as np
 import random
 import torch
 from tqdm import tqdm
+from pathlib import Path
 
 from difflob.diffusion.sampler_func import get_sampling_fn
 from difflob.diffusion.sde_lib import VESDE, VPSDE, subVPSDE
@@ -39,6 +40,8 @@ class Sampler():
         self.trend_cond_path = config.trend_cond_path
         self.volatility_cond_path = config.volatility_cond_path
         self.bin_mode = config.bin_mode
+        self.model_kwargs = getattr(config, "model_kwargs", {})
+        self.max_sample_batches = getattr(config, "max_sample_batches", None)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
         # determine diffusion process
@@ -91,7 +94,7 @@ class Sampler():
             self.diff_net = WaveNetJoint(input_dim = 2)
         if self.diff_model == "wavenet_motion_control":
             from difflob.models.diffusion.wavenet_motion_control import WaveNetJoint
-            self.diff_net = WaveNetJoint(input_dim = 2)
+            self.diff_net = WaveNetJoint(input_dim = 2, **self.model_kwargs)
             
         diff_ckpt = torch.load(self.diff_model_loading_path, map_location = self.device, weights_only = True)
         self.diff_net.load_state_dict(diff_ckpt, strict = True, assign = True)
@@ -116,11 +119,16 @@ class Sampler():
         
         # iterative sampling with tqdm progress bar
         fake_samples = []
-        loop = tqdm(self.sample_dataloader, desc = "Sampling", total = len(self.sample_dataloader))
+        total_batches = len(self.sample_dataloader)
+        if self.max_sample_batches is not None:
+            total_batches = min(total_batches, self.max_sample_batches)
+        loop = tqdm(self.sample_dataloader, desc = "Sampling", total = total_batches)
         
         # use effective_past_batch as buffer for generated batch
         effective_past_batch = None
         for idx, (past_batch, predict_batch, trend_batch, volatility_batch, liquidity_batch, imb_batch, _, predict_time_batch) in enumerate(loop):
+            if self.max_sample_batches is not None and idx >= self.max_sample_batches:
+                break
             
             # For every refresh_cycle sampling, model uses real condition, otherelse takes generated data as conditions.
             refresh_cycle = self.refresh_cycle
@@ -215,6 +223,7 @@ class Sampler():
             
         # store fake_samples as npy file
         fake_samples = [tensor.cpu().numpy() for tensor in fake_samples]
+        Path(self.samples_saving_path).parent.mkdir(parents=True, exist_ok=True)
         np.save(self.samples_saving_path, fake_samples)
     
     

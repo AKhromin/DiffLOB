@@ -6,7 +6,6 @@ import importlib.util
 import torch
 
 from difflob.data.preprocessing import process_folder
-from difflob.sampling.diffusion import Sampler
 from difflob.training.diffusion import Trainer
 from difflob.utils.util import load_config, convert_dataframe_to_tensor, compute_time_deltas, get_dataloader
 
@@ -30,7 +29,11 @@ if __name__ == "__main__":
     # --------------------------------------------------------
 
     # process all messages and orderbooks in given file
-    train_orderbooks, val_orderbooks, test_orderbooks = process_folder(config.folder_path, config.split_rate)
+    train_orderbooks, val_orderbooks, test_orderbooks = process_folder(
+        config.folder_path,
+        config.split_rate,
+        single_day_split=getattr(config, "single_day_split", False),
+    )
 
     # get raw train, val, test orderbooks
     train_orderbooks = pd.concat(train_orderbooks, ignore_index = True)
@@ -72,6 +75,7 @@ if __name__ == "__main__":
         model_train.train()
     
     else:
+        from difflob.sampling.diffusion import Sampler
 
         # --------------------------------------------------------
         # sampling

@@ -50,10 +50,16 @@ uv sync
 You can then run commands through the managed environment:
 
 ```bash
-uv run difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/train.py
+PYTHONPATH="$PWD/src" uv run --no-sync difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/train_sample_smoke.py
 ```
 
 Historical commands are available under `legacy/`, for example `python legacy/diffusion_main.py -c ...`.
+
+For a quick local check with the one-day LOBSTER sample, see
+[`docs/quickstart.md`](docs/quickstart.md). The full `train.py` configuration
+expects multiple trading days in `data/LOBSTER/AMZN/` so that training,
+validation, and test sets each contain separate days. Market data and generated
+checkpoints are kept locally and are not included in this repository.
 
 ---
 
@@ -85,7 +91,7 @@ DiffLOB requires future market regime conditions to be precomputed before counte
 These conditioning variables are constructed using the script:
 
 ```bash
-uv run difflob-build-conditions
+PYTHONPATH="$PWD/src" uv run --no-sync difflob-build-conditions
 ```
 
 ---
@@ -101,8 +107,8 @@ bash scripts/AMZN/diff_wavenet_motion_control.sh
 Or call the packaged entrypoint directly:
 
 ```bash
-uv run difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/train.py
-uv run difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/sample.py
+PYTHONPATH="$PWD/src" uv run --no-sync difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/train.py
+PYTHONPATH="$PWD/src" uv run --no-sync difflob-diffusion -c config/AMZN/Diffusion/wavenet_motion_control/sample.py
 ```
 
 ---

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 import tqdm
+from pathlib import Path
 
 from difflob.diffusion.losses import get_loss_fn
 from difflob.diffusion.sde_lib import VESDE, VPSDE, subVPSDE
@@ -33,6 +34,9 @@ class Trainer():
         self.motion = config.motion
         self.early_stop_patience = config.early_stop_patience
         self.early_stop_min_delta = config.early_stop_min_delta
+        self.model_kwargs = getattr(config, "model_kwargs", {})
+        self.max_train_batches = getattr(config, "max_train_batches", None)
+        self.max_val_batches = getattr(config, "max_val_batches", None)
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         
         # determine diffusion process
@@ -115,14 +119,17 @@ class Trainer():
 
         total_loss = 0.0
         total_items = 0
-        scaler = torch.amp.GradScaler()
+        scaler = torch.amp.GradScaler("cuda", enabled=self.device == "cuda")
+        max_batches = self.max_train_batches if training else self.max_val_batches
 
-        for past_batch, predict_batch, trend_batch, volatility_batch, liquidity_batch, imb_batch, past_time_batch, predict_time_batch in dataloader:
+        for batch_index, (past_batch, predict_batch, trend_batch, volatility_batch, liquidity_batch, imb_batch, past_time_batch, predict_time_batch) in enumerate(dataloader):
+            if max_batches is not None and batch_index >= max_batches:
+                break
             x, cond = self._process_batch(past_batch, predict_batch, trend_batch, volatility_batch, liquidity_batch, imb_batch, past_time_batch, predict_time_batch)
 
             if training:    
                 self.optimizer.zero_grad()
-                with torch.amp.autocast(device_type = self.device):
+                with torch.amp.autocast(device_type=self.device, enabled=self.device == "cuda"):
                     loss = self.loss_fn(net, x, cond, enable_motion, enable_control)
                     
                 # skip batch that would elicit nan loss
@@ -149,6 +156,7 @@ class Trainer():
         return total_loss / total_items if total_items > 0 else float('inf')
 
     def train(self):
+        Path(self.diff_model_saving_path).parent.mkdir(parents=True, exist_ok=True)
         
         # Initialize model
         if self.diff_model == "csdi":
@@ -168,7 +176,7 @@ class Trainer():
             self.diff_net = WaveNetJoint(input_dim = 2)
         if self.diff_model == "wavenet_motion_control":
             from difflob.models.diffusion.wavenet_motion_control import WaveNetJoint
-            self.diff_net = WaveNetJoint(input_dim = 2)
+            self.diff_net = WaveNetJoint(input_dim = 2, **self.model_kwargs)
         
         self.diff_net.to(self.device)
         net = self.diff_net

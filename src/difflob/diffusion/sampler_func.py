@@ -6,7 +6,6 @@ import abc
 
 from difflob.utils.util import from_flattened_numpy, to_flattened_numpy
 from .losses import get_score_fn
-from scipy import integrate
 from . import sde_lib
 from .dpm_solver import NoiseScheduleVP, model_wrapper, DPM_Solver
 
@@ -439,6 +438,7 @@ def get_ode_sampler(sde, shape,
     Returns:
         A sampling function that returns samples and the number of function evaluations during sampling.
     """
+    from scipy import integrate
 
     def denoise_update_fn(model, x, cond, guidance):
         score_fn = get_score_fn(sde, model, continuous = False)
